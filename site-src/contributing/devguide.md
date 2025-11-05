@@ -36,7 +36,9 @@ command in PR and issue comments][issue-cmds]. For example,
 Before you start developing with Gateway API, we'd recommend having the
 following prerequisites installed:
 
-* [Kind](https://kubernetes.io/docs/tasks/tools/#kind): This is a standalone local Kubernetes cluster. At least one container runtime is required. We recommend installing [Docker](https://docs.docker.com/engine/install/). While you can opt for alternatives like [Podman](https://podman.io/docs/installation), please be aware that doing so is at your own risk.
+* [KinD](https://kubernetes.io/docs/tasks/tools/#kind): This is a standalone local Kubernetes cluster. At least one container runtime is required.
+* [Docker](https://docs.docker.com/engine/install/): This is a prerequisite for running KinD. While you can opt for alternatives like [Podman](https://podman.io/docs/installation), please be aware that doing so is at your own risk.
+* [BuildX](https://github.com/docker/buildx): Prerequisite for `make verify` to run.
 * [Kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl): This is the Kubernetes command-line tool.
 * [Go](https://golang.org/doc/install): It is the main programming language in this project. Please check this [file](https://github.com/kubernetes-sigs/gateway-api/blob/main/go.mod#L3) to find out the least `Go` version otherwise you might encounter compilation errors.
 * [Digest::SHA](https://metacpan.org/pod/Digest::SHA): It is a required dependency. You can obtain it by installing the `perl-Digest-SHA` package.
@@ -59,7 +61,7 @@ outside $GOPATH as well.
 
 ### Build the Code
 
-The project uses `make` to drive the build. `make` will run code generators, and
+The project uses `make` to drive the build. `make` will clean up previously generated code, run code generators, and
 run static analysis against the code and generate Kubernetes CRDs. You can kick
 off an overall build from the top-level makefile:
 
@@ -139,20 +141,18 @@ manually preview docs changes locally, you can install mkdocs and run:
  make docs
 ```
 
-To make it easier to use the right version of mkdocs, there is a `.venv`
-target to create a Python virtualenv that includes mkdocs. To use the
-mkdocs live preview server while you edit, you can run mkdocs from
-the virtualenv:
+To make it easier to use the right version of mkdocs, you can build and serve the docs in a container:
 
 ```shell
-$ make .venv
-Creating a virtualenv in .venv... OK
-To enter the virtualenv type "source .venv/bin/activate", to exit type "deactivate"
-(.venv) $ source .venv/bin/activate
-(.venv) $ mkdocs serve
-INFO    -  Building documentation...
+$ make build-docs
 ...
+INFO    -  Documentation built in 6.73 seconds
+$ make live-docs
+...
+INFO    -  [15:16:59] Serving on http://0.0.0.0:3000/
 ```
+
+You can then view the docs at http://localhost:3000/.
 
 For more information on how documentation should be written, refer to our
 [Documentation Style Guide](style-guide.md).
@@ -161,3 +161,12 @@ For more information on how documentation should be written, refer to our
 
 To develop or run conformance tests, refer to the [Conformance Test
 Documentation](../concepts/conformance.md#running-tests).
+
+### Adding new tools
+The tools used to build and manage this project are self-contained on their own
+directory at the `tools` directory.
+
+To add a new tool, use `go get -tool -modfile tools/go.mod the.tool.repo/toolname@version`
+and tidy the specific module with `go mod tidy -modfile=tools/go.mod`.
+
+To execute the new tool, use `go tool -modfile=tools/go.mod toolname`.

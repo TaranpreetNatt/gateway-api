@@ -26,6 +26,7 @@ import (
 	clientset "k8s.io/client-go/kubernetes"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
+	"sigs.k8s.io/gateway-api/conformance/utils/config"
 	"sigs.k8s.io/gateway-api/conformance/utils/kubernetes"
 	"sigs.k8s.io/gateway-api/conformance/utils/tlog"
 )
@@ -63,7 +64,7 @@ func ExpectMirroredRequest(t *testing.T, client client.Client, clientset clients
 					}
 				}
 				return false
-			}, 60*time.Second, time.Millisecond*100, `Couldn't find mirrored request in "%s/%s" logs`, mirrorPod.Namespace, mirrorPod.Name)
+			}, timeoutConfig.RequestTimeout, time.Second*1, `Couldn't find mirrored request in "%s/%s" logs`, mirrorPod.Namespace, mirrorPod.Name)
 		}(mirrorPod)
 	}
 

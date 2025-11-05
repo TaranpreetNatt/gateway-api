@@ -50,10 +50,14 @@ Session.vim
 /www/test_out
 .*.timestamp
 /site
-go.work
 go.work.sum
+/tmp
 
 /cache
 .venv/
 release/
 site-src/reference/spec.md
+site-src/reference/specx.md
+site-src/reference/**/spec.md
+site-src/reference/**/specx.md
+
